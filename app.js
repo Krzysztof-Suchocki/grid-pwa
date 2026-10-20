@@ -1,5 +1,3 @@
-// Grid PWA: rejestracja Service Workera.
-// Sciezka wzgledna dziala rowniez na GitHub Pages pod /grid-pwa/.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
