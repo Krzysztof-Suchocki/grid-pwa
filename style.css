@@ -1,0 +1,49 @@
+/* Telefon */
+* { box-sizing: border-box; }
+body { margin: 0; padding: 10px; font-family: Arial, sans-serif; background: #f4f6f8; }
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "a a"
+    "b b"
+    "c d"
+    "e e"
+    "f f";
+  grid-template-rows: 1fr 0.8fr 2fr 0.8fr 1fr;
+  gap: 0;
+  width: 100%;
+  height: calc(100vh - 20px);
+  height: calc(100dvh - 20px);
+  margin: 0;
+}
+.area { display: grid; place-items: center; border: 2px solid #344054; border-radius: 8px; font-size: 2.5rem; font-weight: bold; color: #243247; }
+.area-a { grid-area: a; background: #c8e6ff; }
+.area-b { grid-area: b; background: #d8f3dc; }
+.area-c { grid-area: c; background: #fff0c2; }
+.area-d { grid-area: d; background: #ffd6d6; }
+.area-e { grid-area: e; background: #e8d9ff; }
+.area-f { grid-area: f; background: #ccebe8; }
+/* Tablet */
+@media (min-width: 600px) {
+  .grid-container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      "a a a"
+      "b b b"
+      "c d e"
+      "f f f";
+    grid-template-rows: 1fr 0.8fr 3fr 1fr;
+  }
+}
+/* Komputer */
+@media (min-width: 1024px) {
+  .grid-container {
+    grid-template-columns: 0.65fr 1fr 1.4fr 1.2fr;
+    grid-template-areas:
+      "a a a a"
+      "b c d e"
+      "f f f f";
+    grid-template-rows: 1fr 4fr 1fr;
+  }
+}
