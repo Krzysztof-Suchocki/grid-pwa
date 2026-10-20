@@ -1,5 +1,4 @@
-// Service Worker dla GitHub Pages i lokalnego serwera HTTP(S).
-// Adres aplikacji jest wyznaczany na podstawie zakresu rejestracji.
+
 const CACHE_NAME = 'grid-pwa-v2';
 const APP_BASE = self.registration.scope;
 const OFFLINE_FILES = [
@@ -37,7 +36,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.origin !== self.location.origin || !url.href.startsWith(APP_BASE)) return;
 
   if (request.mode === 'navigate') {
-    // Stronę aktualizuj z sieci, a offline użyj zapisanej kopii.
+   
     event.respondWith(
       fetch(request).then((response) => {
         if (response.ok) {
@@ -54,7 +53,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Zasoby statyczne: najpierw pamięć podręczna, potem sieć.
+  
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request))
   );
