@@ -1,11 +1,12 @@
 // Service Worker dla GitHub Pages i lokalnego serwera HTTP(S).
 // Adres aplikacji jest wyznaczany na podstawie zakresu rejestracji.
-const CACHE_NAME = 'grid-pwa-v1';
+const CACHE_NAME = 'grid-pwa-v2';
 const APP_BASE = self.registration.scope;
 const OFFLINE_FILES = [
   './',
   './index.html',
   './style.css',
+  './app.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png'
