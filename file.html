@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File API – odczyt pliku</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; margin: 0; padding: 32px 16px; }
+    main { max-width: 650px; margin: 0 auto; padding: 24px; background: #fff; border: 1px solid #ddd; border-radius: 12px; }
+    h1 { margin-top: 0; }
+    input { display: block; margin: 18px 0; max-width: 100%; }
+    pre { padding: 16px; background: #f1f3f5; border: 1px solid #ddd; border-radius: 8px; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 70px; }
+    #status { color: #555; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>File API – odczyt pliku z dysku</h1>
+    <p>Wybierz plik tekstowy (np. <strong>ala-ma-kota.txt</strong>) lub JSON z komputera.</p>
+    <label for="plik">Wybierz plik:</label>
+    <input type="file" id="plik" accept=".txt,.json,text/plain,application/json">
+    <p id="status" role="status">Nie wybrano pliku.</p>
+    <h2>Zawartość pliku:</h2>
+    <pre id="wynik">Tutaj pojawi się tekst z pliku.</pre>
+  </main>
+  <script>
+    const polePliku = document.getElementById('plik');
+    const wynik = document.getElementById('wynik');
+    const status = document.getElementById('status');
+
+    polePliku.addEventListener('change', () => {
+      const plik = polePliku.files[0];
+      if (!plik) {
+        status.textContent = 'Nie wybrano pliku.';
+        wynik.textContent = '';
+        return;
+      }
+
+      status.textContent = 'Odczytywanie pliku: ' + plik.name;
+      const czytnik = new FileReader();
+      czytnik.onload = () => {
+        let tekst = czytnik.result;
+        if (plik.name.toLowerCase().endsWith('.json')) {
+          try {
+            const dane = JSON.parse(tekst);
+            // Dla przygotowanego wcześniej pliku { "tekst": "Ala ma kota." }
+            tekst = typeof dane.tekst === 'string'
+              ? dane.tekst
+              : JSON.stringify(dane, null, 2);
+          } catch (blad) {
+            status.textContent = 'Plik JSON jest niepoprawny. Wyświetlam surową zawartość.';
+          }
+        }
+        wynik.textContent = tekst;
+        if (!status.textContent.startsWith('Plik JSON')) {
+          status.textContent = 'Wczytano: ' + plik.name;
+        }
+      };
+      czytnik.onerror = () => {
+        status.textContent = 'Nie udało się odczytać pliku.';
+        wynik.textContent = '';
+      };
+      czytnik.readAsText(plik, 'UTF-8');
+    });
+  </script>
+</body>
+</html>
