@@ -1,0 +1,3 @@
+Hello World!
+Ala ma kota.
+Ten tekst został odczytany z pliku hello.txt przy użyciu Cache API.

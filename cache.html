@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cache API – odczyt pliku hello.txt</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #172339;
+    }
+    main {
+      width: min(100%, 650px);
+      padding: 28px;
+      background: white;
+      border: 1px solid #d7dfeb;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+    h1 { margin-top: 0; }
+    .przyciski { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+    button {
+      padding: 12px 15px;
+      background: #1f5fba;
+      border: 0;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button:hover { background: #164b96; }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    #status { min-height: 24px; font-weight: bold; }
+    pre {
+      padding: 18px;
+      min-height: 90px;
+      border: 1px solid #d7dfeb;
+      background: #f7f9fc;
+      border-radius: 6px;
+      font-family: Consolas, monospace;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    small { color: #566579; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Cache API</h1>
+    <p>Przykład zapisywania i odczytywania pliku <strong>hello.txt</strong> z pamięci podręcznej przeglądarki.</p>
+    <div class="przyciski">
+      <button id="zapisz" type="button">1. Zapisz w cache</button>
+      <button id="odczytaj" type="button">2. Odczytaj z cache</button>
+      <button id="usun" type="button">3. Usuń z cache</button>
+    </div>
+    <p id="status" role="status" aria-live="polite">Wybierz działanie.</p>
+    <h2>Zawartość pliku:</h2>
+    <pre id="wynik">Tutaj pojawi się zawartość hello.txt.</pre>
+    <small>Najpierw zapisz plik, potem odczytaj. Po zapisaniu można odłączyć internet i ponownie użyć przycisku „Odczytaj z cache”, o ile strona pozostaje otwarta.</small>
+  </main>
+  <script>
+    // Cała logika została umieszczona bezpośrednio w tym pliku,
+    // dzięki czemu do zadania wystarczają cache.html i hello.txt.
+    const CACHE_NAME = 'grid-pwa-hello-v1';
+    const FILE_URL = new URL('./hello.txt', document.baseURI).href;
+
+    const statusElement = document.getElementById('status');
+    const wynikElement = document.getElementById('wynik');
+    const przyciski = [
+      document.getElementById('zapisz'),
+      document.getElementById('odczytaj'),
+      document.getElementById('usun')
+    ];
+
+    function status(tekst, czyBlad = false) {
+      statusElement.textContent = tekst;
+      statusElement.style.color = czyBlad ? '#b42318' : '#146235';
+    }
+
+    async function wykonaj(operacja) {
+      przyciski.forEach(przycisk => { przycisk.disabled = true; });
+      try {
+        if (!('caches' in window)) {
+          throw new Error('Ta przeglądarka nie udostępnia Cache API.');
+        }
+        const cache = await caches.open(CACHE_NAME);
+        await operacja(cache);
+      } catch (blad) {
+        status('Błąd: ' + blad.message, true);
+      } finally {
+        przyciski.forEach(przycisk => { przycisk.disabled = false; });
+      }
+    }
+
+    document.getElementById('zapisz').addEventListener('click', () => {
+      wykonaj(async (cache) => {
+        status('Pobieranie hello.txt z serwera...');
+        const odpowiedz = await fetch(FILE_URL, { cache: 'reload' });
+        if (!odpowiedz.ok) {
+          throw new Error('Nie udało się pobrać hello.txt (HTTP ' + odpowiedz.status + ').');
+        }
+        await cache.put(FILE_URL, odpowiedz.clone());
+        wynikElement.textContent = await odpowiedz.text();
+        status('Plik hello.txt został zapisany w Cache API.');
+      });
+    });
+
+    document.getElementById('odczytaj').addEventListener('click', () => {
+      wykonaj(async (cache) => {
+        const odpowiedz = await cache.match(FILE_URL);
+        if (!odpowiedz) {
+          status('Nie znaleziono pliku w cache. Najpierw kliknij „Zapisz w cache”.', true);
+          wynikElement.textContent = 'Brak danych w pamięci podręcznej.';
+          return;
+        }
+        wynikElement.textContent = await odpowiedz.text();
+        status('Plik hello.txt odczytano z Cache API (bez pobierania z serwera).');
+      });
+    });
+
+    document.getElementById('usun').addEventListener('click', () => {
+      wykonaj(async (cache) => {
+        const usunieto = await cache.delete(FILE_URL);
+        wynikElement.textContent = 'Tutaj pojawi się zawartość hello.txt.';
+        status(usunieto ? 'Usunięto hello.txt z cache.' : 'Pliku nie było w cache.');
+      });
+    });
+  </script>
+</body>
+</html>
