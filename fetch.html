@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fetch API – pobieranie danych JSON</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: #f3f6fb; font-family: Arial, sans-serif; color: #1d2a40; padding: 20px; }
+    main { width: min(100%, 560px); background: white; padding: 32px; border-radius: 16px; box-shadow: 0 8px 36px #172c4820; }
+    h1 { font-size: 1.7rem; margin: 0 0 14px; }
+    p { line-height: 1.5; }
+    #wynik { min-height: 72px; padding: 22px; background: #eaf3ff; border: 1px solid #b9d9ff; border-radius: 10px; font-size: 1.35rem; font-weight: bold; }
+    #status { color: #53657f; font-size: .9rem; }
+    button { background: #235bc1; color: white; border: 0; border-radius: 8px; padding: 12px 18px; font: inherit; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: wait; }
+    a { color: #235bc1; }
+  </style>
+  <script src="./fetch.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Fetch API – przykład</h1>
+    <p>Tekst pobrany z pliku <code>dane.json</code> opublikowanego na GitHub Pages:</p>
+    <div id="wynik" aria-live="polite"></div>
+    <p id="status" role="status">Oczekiwanie na dane…</p>
+    <button id="odswiez" type="button">Pobierz ponownie</button>
+    <p><a href="./index.html">Wróć do CSS Grid</a></p>
+  </main>
+</body>
+</html>
