@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15253c">
+  <title>Device Orientation API – kąty obrotu telefonu</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f1f5fa; color: #14243a; min-height: 100vh; }
+    main { width: min(760px, 100%); margin: 0 auto; padding: 26px 16px 48px; }
+    h1 { font-size: clamp(1.45rem, 5vw, 2.1rem); line-height: 1.18; margin: 0 0 10px; }
+    .intro { margin: 0 0 20px; line-height: 1.5; color: #4b617a; }
+    .panel { background: #fff; border: 1px solid #d7e1ee; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 5px 24px #1935540a; }
+    .status { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; min-height: 24px; font-weight: 600; }
+    .dot { width: 10px; height: 10px; background: #9ca3af; border-radius: 50%; flex: 0 0 auto; }
+    .dot.active { background: #22a26b; }
+    .dot.error { background: #d54d4d; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; }
+    button { font: inherit; font-weight: 650; border-radius: 10px; padding: 12px 20px; border: 1px solid #18385e; cursor: pointer; min-height: 46px; }
+    #start { color: white; background: #173b66; }
+    #stop { color: #173b66; background: #fff; }
+    button:disabled { opacity: .52; cursor: not-allowed; }
+    .values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .value { padding: 16px 10px; text-align: center; border-radius: 12px; background: #eff5fd; }
+    .axis { color: #52677e; font-size: .9rem; }
+    output { display: block; font-size: clamp(1.15rem, 4vw, 1.9rem); font-variant-numeric: tabular-nums; font-weight: 750; margin: 8px 0 3px; overflow-wrap: anywhere; }
+    .desc { color: #52677e; font-size: .78rem; }
+    .preview-area { background: #edf3fa; border-radius: 14px; height: 220px; display: grid; place-items: center; perspective: 700px; overflow: hidden; }
+    .phone { width: 93px; height: 165px; background: #213f66; border: 5px solid #12263e; border-radius: 19px; box-shadow: 9px 12px 18px #14243a45; transform-style: preserve-3d; transition: transform 120ms linear; position: relative; }
+    .phone::before { content: ""; position: absolute; width: 36px; height: 9px; left: calc(50% - 18px); top: 5px; border-radius: 0 0 9px 9px; background: #091728; }
+    .phone::after { content: "↑"; color: #bddaf9; font-size: 45px; position: absolute; top: 45px; left: 0; right: 0; text-align: center; }
+    .detail { margin: 12px 0 0; line-height: 1.5; color: #52677e; font-size: .9rem; }
+    .warn { margin: 14px 0 0; padding: 12px; border: 1px solid #f4d99e; background: #fff8e9; border-radius: 10px; color: #785415; line-height: 1.45; }
+    .foot { color: #63768b; font-size: .85rem; line-height: 1.5; }
+    @media (max-width: 420px) { .values { gap: 6px; } .value { padding: 12px 5px; } .panel { padding: 16px; } .desc { font-size: .7rem; } }
+  </style>
+  <script src="./orientation.js?v=1" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Device Orientation API</h1>
+    <p class="intro">Wykrywanie kątów obrotu telefonu na żywo. Przytrzymaj telefon i obracaj nim, obserwując zmiany.</p>
+
+    <section class="panel" aria-label="Sterowanie czujnikiem">
+      <div class="status" role="status" aria-live="polite">
+        <span class="dot" id="dot" aria-hidden="true"></span>
+        <span id="status">Czujnik nieuruchomiony</span>
+      </div>
+      <div class="controls">
+        <button id="start" type="button">Rozpocznij pomiar</button>
+        <button id="stop" type="button" disabled>Zatrzymaj</button>
+      </div>
+      <p class="warn" id="message" hidden></p>
+    </section>
+
+    <section class="panel" aria-label="Kąty obrotu">
+      <div class="values">
+        <div class="value"><div class="axis">Alpha (α)</div><output id="alpha">—</output><div class="desc">Oś Z · 0–360°</div></div>
+        <div class="value"><div class="axis">Beta (β)</div><output id="beta">—</output><div class="desc">Oś X · −180–180°</div></div>
+        <div class="value"><div class="axis">Gamma (γ)</div><output id="gamma">—</output><div class="desc">Oś Y · −90–90°</div></div>
+      </div>
+      <p class="detail" id="last-update">Ostatni odczyt: —</p>
+    </section>
+
+    <section class="panel" aria-label="Wizualizacja obrotu">
+      <h2 style="font-size:1.1rem; margin:0 0 14px;">Podgląd orientacji</h2>
+      <div class="preview-area"><div class="phone" id="phone" aria-label="Schemat telefonu obracający się wraz ze zmianą kątów"></div></div>
+      <p class="detail">Wizualizacja jest poglądowa. Wartości α, β i γ są podawane przez czujniki telefonu; nie są równoznaczne z kierunkiem geograficznym.</p>
+    </section>
+  </main>
+</body>
+</html>
