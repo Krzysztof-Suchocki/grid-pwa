@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#163656">
+  <meta name="description" content="Device Motion API: pomiar przyspieszenia i prędkości obrotowej telefonu w osiach X, Y i Z.">
+  <title>Device Motion API – przyspieszenie i obrót</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f0f4f9; color: #172c42; min-height: 100vh; }
+    main { width: min(820px, 100%); margin: 0 auto; padding: 26px 16px 54px; }
+    h1 { font-size: clamp(1.55rem, 5vw, 2.1rem); line-height: 1.2; margin: 0 0 10px; }
+    h2 { font-size: 1.12rem; margin: 0 0 6px; }
+    .intro, .explain, .footnote { color: #516780; line-height: 1.55; }
+    .intro { margin: 0 0 18px; }
+    .panel { background: #fff; border: 1px solid #d7e2ee; border-radius: 17px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 20px #102f4b0a; }
+    .status-line { display: flex; gap: 10px; align-items: center; font-weight: 650; margin-bottom: 16px; min-height: 24px; }
+    .status-dot { width: 11px; height: 11px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; }
+    .status-dot.active { background: #159467; }
+    .status-dot.warning { background: #cc8723; }
+    .status-dot.error { background: #cf4848; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; }
+    button { font: inherit; font-weight: 650; min-height: 48px; border-radius: 10px; padding: 12px 18px; cursor: pointer; border: 1px solid #214867; }
+    #start { background: #17416b; color: #fff; }
+    #stop { background: #fff; color: #17416b; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    button:focus-visible { outline: 3px solid #55a8ef; outline-offset: 3px; }
+    .message { margin: 14px 0 0; border-radius: 10px; background: #fff6e6; border: 1px solid #e9c98e; padding: 12px 14px; color: #734e18; line-height: 1.5; }
+    [hidden] { display: none !important; }
+    .section-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 15px; }
+    .unit { color: #63758b; font-size: .88rem; }
+    .measure-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .measure { background: #eff5fc; border: 1px solid #e0eaf6; border-radius: 12px; padding: 14px 10px; text-align: center; min-width: 0; }
+    .measure .axis { font-size: .85rem; color: #58718c; font-weight: 650; }
+    output { display: block; font-weight: 750; font-variant-numeric: tabular-nums; font-size: clamp(1.15rem, 4.3vw, 1.85rem); margin: 8px 0; overflow-wrap: anywhere; }
+    .measure .desc { font-size: .78rem; color: #63758b; }
+    .bar-track { height: 6px; background: #d2dfea; border-radius: 8px; position: relative; overflow: hidden; margin: 11px 4px 0; }
+    .bar-track::before { content: ""; width: 1px; height: 100%; left: 50%; background: #64748b; position: absolute; z-index: 1; }
+    .bar { height: 100%; width: 0%; background: #317cb5; position: absolute; left: 50%; transition: left .1s linear, width .1s linear; }
+    .explain { margin: 14px 0 0; font-size: .9rem; }
+    .details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: .88rem; color: #516780; }
+    .details div { background: #f4f7fb; padding: 12px; border-radius: 10px; }
+    .details strong { display: block; color: #1f3a56; font-size: 1rem; margin-top: 5px; font-variant-numeric: tabular-nums; }
+    .footnote { margin: 14px 4px 0; font-size: .9rem; }
+    @media (max-width: 460px) {
+      main { padding: 19px 12px 36px; }
+      .panel { padding: 16px 12px; }
+      .measure-grid { gap: 6px; }
+      .measure { padding: 12px 5px; }
+      .measure .desc { font-size: .69rem; }
+      .details { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="./motion.js?v=1" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Device Motion API</h1>
+    <p class="intro">Odczytuj ruch telefonu na żywo: przyspieszenie w osiach X, Y, Z oraz prędkość obrotu wokół tych osi.</p>
+
+    <section class="panel" aria-label="Uruchamianie pomiaru">
+      <div class="status-line" role="status" aria-live="polite">
+        <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+        <span id="status">Pomiar nieuruchomiony</span>
+      </div>
+      <div class="controls">
+        <button id="start" type="button">Rozpocznij pomiar</button>
+        <button id="stop" type="button" disabled>Zatrzymaj</button>
+      </div>
+      <p class="message" id="message" hidden></p>
+    </section>
+
+    <section class="panel" aria-label="Przyspieszenie liniowe">
+      <div class="section-header"><h2>Przyspieszenie bez grawitacji</h2><span class="unit">m/s²</span></div>
+      <div class="measure-grid">
+        <div class="measure"><span class="axis">X</span><output id="ax">—</output><span class="desc">Prawo / lewo</span><div class="bar-track"><div class="bar" id="bar-ax"></div></div></div>
+        <div class="measure"><span class="axis">Y</span><output id="ay">—</output><span class="desc">Góra / dół</span><div class="bar-track"><div class="bar" id="bar-ay"></div></div></div>
+        <div class="measure"><span class="axis">Z</span><output id="az">—</output><span class="desc">Prostopadle do ekranu</span><div class="bar-track"><div class="bar" id="bar-az"></div></div></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Przyspieszenie z grawitacją">
+      <div class="section-header"><h2>Przyspieszenie z grawitacją</h2><span class="unit">m/s²</span></div>
+      <div class="measure-grid">
+        <div class="measure"><span class="axis">X</span><output id="gx">—</output><span class="desc">Oś X</span></div>
+        <div class="measure"><span class="axis">Y</span><output id="gy">—</output><span class="desc">Oś Y</span></div>
+        <div class="measure"><span class="axis">Z</span><output id="gz">—</output><span class="desc">Oś Z</span></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Prędkość obrotu">
+      <div class="section-header"><h2>Prędkość obrotu</h2><span class="unit">stopnie na sekundę (°/s)</span></div>
+      <div class="measure-grid">
+        <div class="measure"><span class="axis">β · oś X</span><output id="rx">—</output><span class="desc">Obrót wokół X</span></div>
+        <div class="measure"><span class="axis">γ · oś Y</span><output id="ry">—</output><span class="desc">Obrót wokół Y</span></div>
+        <div class="measure"><span class="axis">α · oś Z</span><output id="rz">—</output><span class="desc">Obrót wokół Z</span></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Informacje o pomiarze">
+      <div class="section-header"><h2>Informacje o odczycie</h2></div>
+      <div class="details">
+        <div>Ostatni odczyt<strong id="last-update">—</strong></div>
+        <div>Interwał czujnika<strong id="interval">—</strong></div>
+        <div>Liczba zdarzeń<strong id="count">0</strong></div>
+        <div>Środowisko<strong id="environment">Sprawdzanie…</strong></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
