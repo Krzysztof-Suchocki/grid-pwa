@@ -45,7 +45,6 @@
     <header>
       <a class="back" href="./index.html">← Wróć do Grid PWA</a>
       <h1>Geolokalizacja na żywo</h1>
-      <p class="intro">Odczyt bieżących współrzędnych GPS lub lokalizacji urządzenia. Działa na telefonie i komputerze po udzieleniu zgody.</p>
     </header>
     <section class="panel" aria-label="Odczyt położenia">
       <div id="status" class="status" role="status" aria-live="polite">Kliknij „Rozpocznij”, aby udostępnić lokalizację.</div>
@@ -62,7 +61,6 @@
         <button id="stop" type="button" disabled>Zatrzymaj</button>
       </div>
     </section>
-    <p class="note">Strona korzysta z <code>navigator.geolocation.watchPosition()</code> i aktualizuje współrzędne po otrzymaniu nowego odczytu. Kod tej strony nie wysyła ich na własny serwer ani nie zapisuje do pliku. Aby korzystać z lokalizacji, otwórz stronę przez HTTPS i zezwól przeglądarce na dostęp do lokalizacji. Na telefonie aktualizacje mogą zostać wstrzymane, gdy przeglądarka działa w tle.</p>
   </main>
 </body>
 </html>
