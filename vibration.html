@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#172d4f">
+  <title>Vibration API – Grid PWA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 20px;
+      display: grid;
+      place-items: center;
+      background: #f2f5fa;
+      color: #172d4f;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(100%, 480px);
+      padding: clamp(24px, 6vw, 40px);
+      background: #fff;
+      border: 1px solid #dce5f0;
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(20, 35, 60, .08);
+      text-align: center;
+    }
+    h1 { margin: 0 0 12px; font-size: clamp(24px, 5vw, 32px); }
+    p { line-height: 1.6; }
+    button {
+      width: 100%;
+      min-height: 52px;
+      margin: 16px 0;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 10px;
+      background: #2466bd;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    button:hover { background: #1c519b; }
+    button:focus-visible { outline: 3px solid #78a9ee; outline-offset: 3px; }
+    button:disabled { opacity: .65; cursor: wait; }
+    #status {
+      min-height: 52px;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      background: #eaf1f9;
+      border-radius: 10px;
+      font-size: .94rem;
+    }
+    .info { color: #52657c; font-size: .9rem; }
+    a { color: #2466bd; }
+  </style>
+  <script src="./vibration.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Vibration API</h1>
+    <button id="wibruj" type="button">Wibruj przez 1 sekundę</button>
+    <p id="status" role="status" aria-live="polite">Naciśnij przycisk, aby sprawdzić wibrację.</p>
+    <p><a href="./index.html">Powrót do strony głównej</a></p>
+  </main>
+</body>
+</html>
